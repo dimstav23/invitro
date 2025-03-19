@@ -42,3 +42,43 @@ The software is maintained by the [EASL lab](https://systems.ethz.ch/research/ea
 ## Maintainers
 
 * [Lazar Cvetkovic](https://github.com/cvetkovic) - lazar.cvetkovic@inf.ethz.ch
+
+## Wallet notes
+1. Get the Azure function traces and place them in `/data/azure`
+
+2. Get all the requirements for the `sampler` as specified in [`/docs/sampler.md`](./docs/sampler.md)
+
+3. Run the following to perform the sample from the Azure workloads:
+```
+python3 -m sampler preprocess  -t data/azure/ -o data/traces/azure_wallet/preprocessed_30 -s 06:08:00 -dur 30
+python3 -m sampler sample -t data/traces/azure_wallet/preprocessed_30/ -orig data/traces/azure_wallet/preprocessed_30 -o data/traces/azure_wallet/sampled_500 -min 500 -st 10 -max 550 -tr 16
+python3 -m sampler sample -t data/traces/azure_wallet/preprocessed_30/ -orig data/traces/azure_wallet/preprocessed_30 -o data/traces/azure_wallet/sampled_4000 -min 4000 -st 50 -max 4500 -tr 16
+```
+
+
+4. Generate the IATs for the chosen samples and generate the cumulative traces that are used for wallet::
+```
+mkdir -p wallet_traces/wallet_traces_500 wallet_traces/wallet_traces_4000
+
+sed -i 's|"TracePath": "data/traces/example"|"TracePath": "data/traces/azure_wallet/sampled_500/samples/500"|' cmd/config_knative_trace.json
+go run cmd/loader.go --config cmd/config_knative_trace.json --iatGeneration
+python3 cumulative_trace_generator.py
+rm iat*
+mv function_invocations.csv wallet_traces/wallet_traces_500/
+
+git checkout cmd/config_knative_trace.json
+
+sed -i 's|"TracePath": "data/traces/example"|"TracePath": "data/traces/azure_wallet/sampled_4000/samples/4000"|' cmd/config_knative_trace.json
+go run cmd/loader.go --config cmd/config_knative_trace.json --iatGeneration
+python3 cumulative_trace_generator.py
+rm iat*
+mv function_invocations.csv wallet_traces/wallet_traces_4000/
+``` 
+Note that it uses the parameters set in [`cmd/config_knative_trace.json`](./cmd/config_knative_trace.json) to generate the IATs.
+We do not execute the trace on actual serverless setup.
+
+The configuration we use is the same as the one described in the [`Dirigent`](https://dl.acm.org/doi/10.1145/3694715.3695966) paper.
+Specifically:
+- 30-minute time window starting in the middle of the trace (8th hour of day 6)
+- Medium sample: 500 functions with approx. 350k invocations
+- Large sample: 4K functions with approx. 3.8M invocations
