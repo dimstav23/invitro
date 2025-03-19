@@ -8,7 +8,12 @@ def process_iat_files(directory_path, output_csv_path):
     """
     Process all iat*.json files in the given directory and create a CSV file
     with the format: app,func,end_timestamp,duration,memory
-    All time values are converted to seconds in floating point with high precision.
+    Units Conversion:
+    - IAT values are in microseconds, converted to seconds
+    - Runtime values are in milliseconds, converted to seconds
+    - Memory values are in megabytes
+    
+    All time values are converted to floating-point seconds with high precision.
     """
     # Create a list to store all records
     all_records = []
@@ -54,7 +59,7 @@ def process_iat_files(directory_path, output_csv_path):
             
             # Calculate timestamp: add previous IAT (converted from ns to sec)
             if i > 0:
-                timestamp_sec += iats[i-1] / 1_000_000_000.0  # Convert ns to sec
+                timestamp_sec += iats[i-1] / 1_000_000.0  # Convert microseconds to seconds
             
             # Calculate end timestamp with runtime added
             end_timestamp_sec = timestamp_sec + runtime_sec
