@@ -44,7 +44,7 @@ The software is maintained by the [EASL lab](https://systems.ethz.ch/research/ea
 * [Lazar Cvetkovic](https://github.com/cvetkovic) - lazar.cvetkovic@inf.ethz.ch
 
 ## Wallet notes
-1. Get the Azure function traces and place them in `/data/azure`
+1. Get the [Azure function traces](https://github.com/Azure/AzurePublicDataset/blob/master/AzureFunctionsDataset2019.md) ([direct link](https://azurepublicdatasettraces.blob.core.windows.net/azurepublicdatasetv2/azurefunctions_dataset2019/azurefunctions-dataset2019.tar.xz)) and place them in `/data/azure`
 
 2. Get all the requirements for the `sampler` as specified in [`/docs/sampler.md`](./docs/sampler.md)
 
