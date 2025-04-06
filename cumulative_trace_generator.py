@@ -18,20 +18,19 @@ def process_iat_files(directory_path, output_csv_path):
     # Create a list to store all records
     all_records = []
     
-    # Set a common app identifier
-    app_identifier = "serverless-app"
-    
     # Get all iat*.json files
     iat_files = [f for f in os.listdir(directory_path) if f.startswith("iat") and f.endswith(".json")]
     
     for file_name in iat_files:
-        # Extract function ID from filename (e.g., "iat0.json" -> "0")
-        func_id = file_name.replace("iat", "").replace(".json", "")
         
         # Read the JSON file
         with open(os.path.join(directory_path, file_name), 'r') as f:
             data = json.load(f)
         
+        # Extract app and function ID from the file
+        app_id = data["HashApp"]
+        func_id = data["HashFunction"]
+
         # Extract IATs and RuntimeSpecification
         iats = data["IAT"]
         runtime_specs = data["RuntimeSpecification"]
@@ -66,7 +65,7 @@ def process_iat_files(directory_path, output_csv_path):
             
             # Create a record
             record = {
-                "app": app_identifier,
+                "app": app_id,
                 "func": func_id,
                 "end_timestamp": format(end_timestamp_sec, '.9f'),  # 9 decimal places for nanosecond precision
                 "duration": format(runtime_sec, '.9f'),
