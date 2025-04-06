@@ -100,6 +100,8 @@ type Function struct {
 	// From the static trace profiler
 	InitialScale int
 	// From the trace
+	HashApp          string
+	HashFunction     string
 	InvocationStats  *FunctionInvocationStats
 	RuntimeStats     *FunctionRuntimeStats
 	MemoryStats      *FunctionMemoryStats

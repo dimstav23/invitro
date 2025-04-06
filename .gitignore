@@ -211,3 +211,5 @@ tools/plotter/test-out
 
 data/traces/azure_*
 data/traces/day*
+
+./iat*

@@ -454,7 +454,24 @@ func (d *Driver) GenerateSpecification() {
 
 func (d *Driver) outputIATsToFile() {
 	for i, function := range d.Configuration.Functions {
-		file, _ := json.MarshalIndent(function.Specification, "", " ")
+		// Create a structure that includes the hash information
+		outputData := struct {
+			IAT                  []float64                           `json:"IAT"`
+			PerMinuteCount       []int                               `json:"PerMinuteCount"`
+			RawDuration          []float64                           `json:"RawDuration"`
+			RuntimeSpecification []common.RuntimeSpecification       `json:"RuntimeSpecification"`
+			HashApp              string                              `json:"HashApp"`
+			HashFunction         string                              `json:"HashFunction"`
+		}{
+			IAT:                  function.Specification.IAT,
+			PerMinuteCount:       function.Specification.PerMinuteCount,
+			RawDuration:          function.Specification.RawDuration,
+			RuntimeSpecification: function.Specification.RuntimeSpecification,
+			HashApp:              function.HashApp,
+			HashFunction:         function.HashFunction,
+		}
+
+		file, _ := json.MarshalIndent(outputData, "", " ")
 		err := os.WriteFile("iat"+strconv.Itoa(i)+".json", file, 0644)
 		if err != nil {
 			log.Fatalf("Writing the loader config file failed: %s", err)
